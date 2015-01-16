@@ -171,6 +171,25 @@ describe("errors", function() {
 		}).should.throw();
 		fs.readdirSync("/test/").should.be.eql(["dir", "file"]);
 	});
+	it("should throw on readlink", function() {
+		var fs = new MemoryFileSystem();
+		fs.mkdirpSync("/test/dir");
+		(function() {
+			fs.readlinkSync("/");
+		}).should.throw();
+		(function() {
+			fs.readlinkSync("/link");
+		}).should.throw();
+		(function() {
+			fs.readlinkSync("/test");
+		}).should.throw();
+		(function() {
+			fs.readlinkSync("/test/dir");
+		}).should.throw();
+		(function() {
+			fs.readlinkSync("/test/dir/link");
+		}).should.throw();
+	});
 });
 describe("async", function() {
 	it("should be able to use the async versions", function(done) {
@@ -205,6 +224,30 @@ describe("async", function() {
 		});
 	});
 });
+describe("normalize", function() {
+	it("should normalize paths", function() {
+		var fs = new MemoryFileSystem();
+		fs.normalize("/a/b/c").should.be.eql("/a/b/c");
+		fs.normalize("/a//b/c").should.be.eql("/a/b/c");
+		fs.normalize("/a//b//c").should.be.eql("/a/b/c");
+		fs.normalize("//a//b//c").should.be.eql("/a/b/c");
+		fs.normalize("/a/////b/c").should.be.eql("/a/b/c");
+		fs.normalize("/./a/d///..////b/c").should.be.eql("/a/b/c");
+		fs.normalize("/..").should.be.eql("/");
+		fs.normalize("/.").should.be.eql("/");
+		fs.normalize("/.git").should.be.eql("/.git");
+		fs.normalize("/a/b/c/.git").should.be.eql("/a/b/c/.git");
+		fs.normalize("/a/b/c/..git").should.be.eql("/a/b/c/..git");
+		fs.normalize("/a/b/c/..").should.be.eql("/a/b");
+		fs.normalize("/a/b/c/../..").should.be.eql("/a");
+		fs.normalize("/a/b/c/../../..").should.be.eql("/");
+		fs.normalize("C:\\a\\..").should.be.eql("C:\\");
+		fs.normalize("C:\\a\\b\\..").should.be.eql("C:\\a");
+		fs.normalize("C:\\a\\b\\\c\\..\\..").should.be.eql("C:\\a");
+		fs.normalize("C:\\a\\b\\d\\..\\c\\..\\..").should.be.eql("C:\\a");
+		fs.normalize("C:\\a\\b\\d\\\\.\\\\.\\c\\.\\..").should.be.eql("C:\\a\\b\\d");
+	});
+});
 describe("join", function() {
 	it("should join paths", function() {
 		var fs = new MemoryFileSystem();
@@ -212,11 +255,108 @@ describe("join", function() {
 		fs.join("/a", "b/c").should.be.eql("/a/b/c");
 		fs.join("/a/b", "c").should.be.eql("/a/b/c");
 		fs.join("/a/", "b/c").should.be.eql("/a/b/c");
-		fs.join("/a//", "b/c").should.be.eql("/a//b/c");
+		fs.join("/a//", "b/c").should.be.eql("/a/b/c");
 		fs.join("a", "b/c").should.be.eql("a/b/c");
 		fs.join("a/b", "c").should.be.eql("a/b/c");
-		fs.join("C:", "a/b").should.be.eql("C:/a/b");
-		fs.join("C:\\", "a/b").should.be.eql("C:\\a/b");
+		fs.join("C:", "a/b").should.be.eql("C:\\a\\b");
+		fs.join("C:\\", "a/b").should.be.eql("C:\\a\\b");
 		fs.join("C:\\", "a\\b").should.be.eql("C:\\a\\b");
+	});
+	it("should join paths (weird cases)", function() {
+		var fs = new MemoryFileSystem();
+		fs.join("/", "").should.be.eql("/");
+		fs.join("/a/b/", "").should.be.eql("/a/b/");
+		fs.join("/a/b/c", "").should.be.eql("/a/b/c");
+		fs.join("C:", "").should.be.eql("C:");
+		fs.join("C:\\a\\b", "").should.be.eql("C:\\a\\b");
+	});
+	it("should join paths (absolute request)", function() {
+		var fs = new MemoryFileSystem();
+		fs.join("/a/b/c", "/d/e/f").should.be.eql("/d/e/f");
+		fs.join("C:\\a\\b\\c", "/d/e/f").should.be.eql("/d/e/f");
+		fs.join("/a/b/c", "C:\\d\\e\\f").should.be.eql("C:\\d\\e\\f");
+		fs.join("C:\\a\\b\\c", "C:\\d\\e\\f").should.be.eql("C:\\d\\e\\f");
+	});
+});
+describe("os", function() {
+	var fileSystem;
+
+	beforeEach(function() {
+		fileSystem = new MemoryFileSystem({
+			"": true,
+			a: {
+				"": true,
+				index: new Buffer("1"), // /a/index
+				dir: {
+					"": true,
+					index: new Buffer("2") // /a/dir/index
+				}
+			},
+			"C:": {
+				"": true,
+				a: {
+					"": true,
+					index: new Buffer("3"),  // C:\files\index
+					dir: {
+						"": true,
+						index: new Buffer("4")  // C:\files\a\index
+					}
+				}
+			}
+		});
+	});
+
+	describe("unix", function() {
+		it("should stat stuff", function() {
+			fileSystem.statSync("/a").isDirectory().should.be.eql(true);
+			fileSystem.statSync("/a").isFile().should.be.eql(false);
+			fileSystem.statSync("/a/index").isDirectory().should.be.eql(false);
+			fileSystem.statSync("/a/index").isFile().should.be.eql(true);
+			fileSystem.statSync("/a/dir").isDirectory().should.be.eql(true);
+			fileSystem.statSync("/a/dir").isFile().should.be.eql(false);
+			fileSystem.statSync("/a/dir/index").isDirectory().should.be.eql(false);
+			fileSystem.statSync("/a/dir/index").isFile().should.be.eql(true);
+		});
+		it("should readdir directories", function() {
+			fileSystem.readdirSync("/a").should.be.eql(["index", "dir"]);
+			fileSystem.readdirSync("/a/dir").should.be.eql(["index"]);
+		});
+		it("should readdir directories", function() {
+			fileSystem.readFileSync("/a/index", "utf-8").should.be.eql("1");
+			fileSystem.readFileSync("/a/dir/index", "utf-8").should.be.eql("2");
+		});
+		it("should also accept multi slashs", function() {
+			fileSystem.statSync("/a///dir//index").isFile().should.be.eql(true);
+		});
+	});
+
+	describe("windows", function() {
+		it("should stat stuff", function() {
+			fileSystem.statSync("C:\\a").isDirectory().should.be.eql(true);
+			fileSystem.statSync("C:\\a").isFile().should.be.eql(false);
+			fileSystem.statSync("C:\\a\\index").isDirectory().should.be.eql(false);
+			fileSystem.statSync("C:\\a\\index").isFile().should.be.eql(true);
+			fileSystem.statSync("C:\\a\\dir").isDirectory().should.be.eql(true);
+			fileSystem.statSync("C:\\a\\dir").isFile().should.be.eql(false);
+			fileSystem.statSync("C:\\a\\dir\\index").isDirectory().should.be.eql(false);
+			fileSystem.statSync("C:\\a\\dir\\index").isFile().should.be.eql(true);
+		});
+		it("should readdir directories", function() {
+			fileSystem.readdirSync("C:\\a").should.be.eql(["index", "dir"]);
+			fileSystem.readdirSync("C:\\a\\dir").should.be.eql(["index"]);
+		});
+		it("should readdir directories", function() {
+			fileSystem.readFileSync("C:\\a\\index", "utf-8").should.be.eql("3");
+			fileSystem.readFileSync("C:\\a\\dir\\index", "utf-8").should.be.eql("4");
+		});
+		it("should also accept multi slashs", function() {
+			fileSystem.statSync("C:\\\\a\\\\\\dir\\\\index").isFile().should.be.eql(true);
+		});
+		it("should also accept a normal slash", function() {
+			fileSystem.statSync("C:\\a\\dir/index").isFile().should.be.eql(true);
+			fileSystem.statSync("C:\\a\\dir\\index").isFile().should.be.eql(true);
+			fileSystem.statSync("C:\\a/dir/index").isFile().should.be.eql(true);
+			fileSystem.statSync("C:\\a/dir\\index").isFile().should.be.eql(true);
+		});
 	});
 });
