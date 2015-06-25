@@ -25,6 +25,7 @@
   },
   "homepage": "https://github.com/webpack/memory-fs",
   "devDependencies": {
+    "bl": "^1.0.0",
     "istanbul": "^0.2.13",
     "mocha": "^1.20.1",
     "should": "^4.0.4"
