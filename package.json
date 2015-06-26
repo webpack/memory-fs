@@ -29,5 +29,8 @@
     "istanbul": "^0.2.13",
     "mocha": "^1.20.1",
     "should": "^4.0.4"
+  },
+  "dependencies": {
+    "readable-stream": "^2.0.1"
   }
 }
