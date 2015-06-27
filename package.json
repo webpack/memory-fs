@@ -7,8 +7,9 @@
     "test": "test"
   },
   "scripts": {
-    "test": "mocha -R spec",
-    "cover": "istanbul cover node_modules/mocha/bin/_mocha -- -R spec"
+    "test": "mocha",
+    "cover": "istanbul cover node_modules/mocha/bin/_mocha",
+    "travis": "npm run cover -- --report lcovonly"
   },
   "repository": {
     "type": "git",
