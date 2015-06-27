@@ -261,15 +261,16 @@ describe("streams", function() {
 		});
 	});
 	describe("readable streams", function() {
-		it("should read files", function() {
+		it("should read files", function(done) {
 			var fs = new MemoryFileSystem();
 			fs.writeFileSync("/file", "Hello");
 			bl(fs.createReadStream("/file"), function(err, data) {
 				err.should.eql(undefined);
 				data.should.eql("Hello");
+				done();
 			});
 		});
-		it("should respect start/end", function() {
+		it("should respect start/end", function(done) {
 			var fs = new MemoryFileSystem();
 			fs.writeFileSync("/file", "Hello");
 			bl(fs.createReadStream("/file", {
@@ -278,6 +279,7 @@ describe("streams", function() {
 			}), function(err, data) {
 				err.should.eql(undefined);
 				data.should.eql("el");
+				done();
 			});
 		});
 		it("should propagate errors", function(done) {
