@@ -28,11 +28,13 @@ describe("directory", function() {
 		fs.readdirSync("//test").should.be.eql(["sub2"]);
 		fs.rmdirSync("/test/sub2");
 		fs.rmdirSync("/test");
+		fs.existsSync("/test").should.be.eql(false);
 		(function() {
 			fs.readdirSync("/test");
 		}).should.throw();
 		fs.readdirSync("/").should.be.eql(["root\\dir"]);
 		fs.mkdirpSync("/a/depth/sub/dir");
+		fs.existsSync("/a/depth/sub").should.be.eql(true);
 		var stat = fs.statSync("/a/depth/sub");
 		stat.isFile().should.be.eql(false);
 		stat.isDirectory().should.be.eql(true);
@@ -50,11 +52,13 @@ describe("directory", function() {
 		fs.readdirSync("C:\\\\test").should.be.eql(["sub2"]);
 		fs.rmdirSync("C:\\test\\sub2");
 		fs.rmdirSync("C:\\test");
+		fs.existsSync("C:\\test").should.be.eql(false);
 		(function() {
 			fs.readdirSync("C:\\test");
 		}).should.throw();
 		fs.readdirSync("C:").should.be.eql(["root-dir"]);
 		fs.mkdirpSync("D:\\a\\depth\\sub\\dir");
+		fs.existsSync("D:\\a\\depth\\sub").should.be.eql(true);
 		var stat = fs.statSync("D:\\a\\depth\\sub");
 		stat.isFile().should.be.eql(false);
 		stat.isDirectory().should.be.eql(true);
@@ -206,7 +210,10 @@ describe("async", function() {
 						fs.readFile("/test/dir/b", function(err, content) {
 							if(err) throw err;
 							content.should.be.eql(new Buffer("World"));
-							done();
+							fs.exists("/test/dir/b", function(exists) {
+								exists.should.be.eql(true);
+								done();
+							});
 						});
 					});
 				});
