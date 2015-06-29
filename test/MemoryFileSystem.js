@@ -210,7 +210,10 @@ describe("async", function() {
 						fs.readFile("/test/dir/b", function(err, content) {
 							if(err) throw err;
 							content.should.be.eql(new Buffer("World"));
-							done();
+							fs.exists("/test/dir/b", function(exists) {
+								exists.should.be.eql(true);
+								done();
+							});
 						});
 					});
 				});
