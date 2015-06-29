@@ -264,23 +264,21 @@ describe("streams", function() {
 		it("should read files", function(done) {
 			var fs = new MemoryFileSystem();
 			fs.writeFileSync("/file", "Hello");
-			bl(fs.createReadStream("/file"), function(err, data) {
-				err.should.eql(undefined);
-				data.should.eql("Hello");
+			fs.createReadStream("/file").pipe(bl(function(err, data) {
+				data.toString('utf8').should.be.eql("Hello");
 				done();
-			});
+			}));
 		});
 		it("should respect start/end", function(done) {
 			var fs = new MemoryFileSystem();
 			fs.writeFileSync("/file", "Hello");
-			bl(fs.createReadStream("/file", {
-				start: 2,
-				end: 4
-			}), function(err, data) {
-				err.should.eql(undefined);
-				data.should.eql("el");
+			fs.createReadStream("/file", {
+				start: 1,
+				end: 3
+			}).pipe(bl(function(err, data) {
+				data.toString('utf8').should.be.eql("el");
 				done();
-			});
+			}));
 		});
 		it("should propagate errors", function(done) {
 			var fs = new MemoryFileSystem();
