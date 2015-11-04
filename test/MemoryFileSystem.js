@@ -1,3 +1,4 @@
+var bl = require("bl");
 var should = require("should");
 var MemoryFileSystem = require("../lib/MemoryFileSystem");
 
@@ -228,6 +229,78 @@ describe("async", function() {
 				err.should.be.instanceof(Error);
 				done();
 			});
+		});
+	});
+});
+describe("streams", function() {
+	describe("writable streams", function() {
+		it("should write files", function() {
+			var fs = new MemoryFileSystem();
+			fs.createWriteStream("/file").end("Hello");
+			fs.readFileSync("/file", "utf8").should.be.eql("Hello");
+		});
+		it("should zero files", function() {
+			var fs = new MemoryFileSystem();
+			fs.createWriteStream("/file").end();
+			fs.readFileSync("/file", "utf8").should.be.eql("");
+		});
+		it("should accept pipes", function(done) {
+			// TODO: Any way to avoid the asyncness of this?
+			var fs = new MemoryFileSystem();
+			bl(new Buffer("Hello"))
+				.pipe(fs.createWriteStream("/file"))
+				.once('finish', function() {
+					fs.readFileSync("/file", "utf8").should.be.eql("Hello");
+					done();
+				});
+		});
+		it("should propagate errors", function(done) {
+			var fs = new MemoryFileSystem();
+			var stream = fs.createWriteStream("file");
+			var err = false;
+			stream.once('error', function() {
+				err = true;
+			}).once('finish', function() {
+				err.should.eql(true);
+				done();
+			});
+			stream.end();
+		});
+	});
+	describe("readable streams", function() {
+		it("should read files", function(done) {
+			var fs = new MemoryFileSystem();
+			fs.writeFileSync("/file", "Hello");
+			fs.createReadStream("/file").pipe(bl(function(err, data) {
+				data.toString('utf8').should.be.eql("Hello");
+				done();
+			}));
+		});
+		it("should respect start/end", function(done) {
+			var fs = new MemoryFileSystem();
+			fs.writeFileSync("/file", "Hello");
+			fs.createReadStream("/file", {
+				start: 1,
+				end: 3
+			}).pipe(bl(function(err, data) {
+				data.toString('utf8').should.be.eql("el");
+				done();
+			}));
+		});
+		it("should propagate errors", function(done) {
+			var fs = new MemoryFileSystem();
+			var stream = fs.createReadStream("file");
+			var err = false;
+			// Why does this dummy event need to be here? It looks like it
+			// either has to be this or data before the stream will actually
+			// do anything.
+			stream.on('readable', function() { }).on('error', function() {
+				err = true;
+			}).on('end', function() {
+				err.should.eql(true);
+				done();
+			});
+			stream.read(0);
 		});
 	});
 });
