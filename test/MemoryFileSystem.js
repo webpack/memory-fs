@@ -204,6 +204,28 @@ describe("errors", function() {
 	});
 });
 describe("async", function() {
+	["stat", "readdir", "mkdirp", "rmdir", "unlink", "readlink"].forEach(function(methodName) {
+		it("should call " + methodName + " callback in a new event cycle", function(done) {
+			var fs = new MemoryFileSystem();
+			var isCalled = false;
+			fs[methodName]('/test', function() {
+				isCalled = true;
+				done();
+			});
+			should(isCalled).eql(false);
+		});
+	});
+	["mkdir", "readFile"].forEach(function(methodName) {
+		it("should call " + methodName + " a callback in a new event cycle", function(done) {
+			var fs = new MemoryFileSystem();
+			var isCalled = false;
+			fs[methodName]('/test', {}, function() {
+				isCalled = true;
+				done();
+			});
+			should(isCalled).eql(false);
+		});
+	});
 	it("should be able to use the async versions", function(done) {
 		var fs = new MemoryFileSystem();
 		fs.mkdirp("/test/dir", function(err) {
