@@ -348,6 +348,8 @@ describe("join", function() {
 		fs.join("C:", "a/b").should.be.eql("C:\\a\\b");
 		fs.join("C:\\", "a/b").should.be.eql("C:\\a\\b");
 		fs.join("C:\\", "a\\b").should.be.eql("C:\\a\\b");
+		fs.join("C:/a/b", "./../c/d").should.be.eql("C:\\a\\c\\d");
+		fs.join("C:\\a\\b", "./../c/d").should.be.eql("C:\\a\\c\\d");
 	});
 	it("should join paths (weird cases)", function() {
 		var fs = new MemoryFileSystem();
