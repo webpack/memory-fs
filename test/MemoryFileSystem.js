@@ -65,6 +65,13 @@ describe("directory", function() {
 		stat.isDirectory().should.be.eql(true);
 		fs.readdirSync("D:\\//a/depth/\\sub").should.be.eql(["dir"]);
 	});
+	it("should call a mkdir callback when passed as the third argument", function(done) {
+		var fs = new MemoryFileSystem();
+		fs.mkdir('/test', {}, function(err) {
+			if (err) throw err;
+			done();
+		});
+	});
 });
 describe("files", function() {
 	it("should make and remove files", function() {
