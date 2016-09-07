@@ -341,6 +341,7 @@ describe("pathToArray", function() {
 		fs.pathToArray("/a/b/c").should.be.eql(["a", "b", "c"]);
 		fs.pathToArray("C:/a/b").should.be.eql(["C:", "a", "b"]);
 		fs.pathToArray("C:\\a\\b").should.be.eql(["C:", "a", "b"]);
+		fs.pathToArray("\\\\a\\b\\c").should.be.eql(["\\\\a", "b", "c"]);
 	});
 	it("should fail on invalid paths", function() {
 		(function() {
