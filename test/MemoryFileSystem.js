@@ -335,6 +335,19 @@ describe("normalize", function() {
 		fs.normalize("C:\\a\\b\\d\\\\.\\\\.\\c\\.\\..").should.be.eql("C:\\a\\b\\d");
 	});
 });
+describe("pathToArray", function() {
+	it("should split path to an array of parts", function() {
+		var fs = new MemoryFileSystem();
+		fs.pathToArray("/a/b/c").should.be.eql(["a", "b", "c"]);
+		fs.pathToArray("C:/a/b").should.be.eql(["C:", "a", "b"]);
+		fs.pathToArray("C:\\a\\b").should.be.eql(["C:", "a", "b"]);
+	});
+	it("should fail on invalid paths", function() {
+		(function() {
+			fs.pathToArray("0:/");
+		}).should.throw();
+	});
+});
 describe("join", function() {
 	it("should join paths", function() {
 		var fs = new MemoryFileSystem();
