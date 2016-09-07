@@ -352,6 +352,8 @@ describe("join", function() {
 	it("should join paths (weird cases)", function() {
 		var fs = new MemoryFileSystem();
 		fs.join("/", "").should.be.eql("/");
+		// https://github.com/webpack/memory-fs/pull/17
+		fs.join("/", undefined).should.be.eql("/");
 		fs.join("/a/b/", "").should.be.eql("/a/b/");
 		fs.join("/a/b/c", "").should.be.eql("/a/b/c");
 		fs.join("C:", "").should.be.eql("C:");
