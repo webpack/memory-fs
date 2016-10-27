@@ -12,7 +12,8 @@
   "scripts": {
     "test": "mocha",
     "cover": "istanbul cover node_modules/mocha/bin/_mocha",
-    "travis": "npm run cover -- --report lcovonly"
+    "travis": "npm run cover -- --report lcovonly",
+    "build": "tsc -p . || true"
   },
   "repository": {
     "type": "git",
@@ -29,12 +30,15 @@
   },
   "homepage": "https://github.com/webpack/memory-fs",
   "devDependencies": {
+    "@types/node": "^6.0.46",
     "bl": "^1.0.0",
     "codecov.io": "^0.1.4",
     "coveralls": "^2.11.2",
     "istanbul": "^0.2.13",
     "mocha": "^1.20.1",
-    "should": "^4.0.4"
+    "should": "^4.0.4",
+    "tslint": "^3.15.1",
+    "typescript": "^2.0.6"
   },
   "dependencies": {
     "errno": "^0.1.3",
