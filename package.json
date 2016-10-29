@@ -6,6 +6,9 @@
   "directories": {
     "test": "test"
   },
+  "files": [
+    "lib/"
+  ],
   "scripts": {
     "test": "mocha",
     "cover": "istanbul cover node_modules/mocha/bin/_mocha",
