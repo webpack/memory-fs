@@ -3,7 +3,7 @@ import normalize = require('./normalize')
 const absoluteWinRegExp = /^[A-Z]:([\\\/]|$)/i
 const absoluteNixRegExp = /^\//i
 
-export = function join(path, request) {
+export = function join(path: string, request: string) {
     if (!request) {
         return normalize(path)
     }

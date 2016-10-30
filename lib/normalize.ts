@@ -15,7 +15,7 @@ const parentDirectoryNixEndRegExp3 = /^\/+\.\.$/
 
 // RegExp magic :)
 
-export = function normalize(path) {
+export = function normalize(path: string) {
     while (currentDirectoryWinMiddleRegExp.test(path)) path = path.replace(currentDirectoryWinMiddleRegExp, '\\')
     path = path.replace(currentDirectoryWinEndRegExp, '')
     while (parentDirectoryWinMiddleRegExp.test(path)) path = path.replace(parentDirectoryWinMiddleRegExp, '\\')

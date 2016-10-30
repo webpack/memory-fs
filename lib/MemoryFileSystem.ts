@@ -16,7 +16,7 @@ class MemoryFileSystemError extends Error {
     errno: number
     path: string
 
-    constructor(err, path) {
+    constructor(err, path: string) {
         super()
         if (Error.captureStackTrace) {
             Error.captureStackTrace(this, MemoryFileSystemError)
@@ -29,10 +29,10 @@ class MemoryFileSystemError extends Error {
 }
 
 class MemoryFileSystem {
-    constructor(public data: {} = {}) {
+    constructor(public data: any = {}) {
     }
 
-    meta(_path) {
+    meta(_path: string) {
         const path = pathToArray(_path)
         let current = this.data
         let i = 0
@@ -45,11 +45,11 @@ class MemoryFileSystem {
         return current[path[i]]
     }
 
-    existsSync(_path) {
+    existsSync(_path: string) {
         return !!this.meta(_path)
     }
 
-    statSync(_path) {
+    statSync(_path: string) {
         const current = this.meta(_path)
         if (_path === '/' || isDir(current)) {
             return {
@@ -78,7 +78,7 @@ class MemoryFileSystem {
         }
     }
 
-    readFileSync(_path, encoding?) {
+    readFileSync(_path: string, encoding?: string) {
         const path = pathToArray(_path)
         let current = this.data
         let i = 0
@@ -100,7 +100,7 @@ class MemoryFileSystem {
         return encoding ? current.toString(encoding) : current
     }
 
-    readdirSync(_path) {
+    readdirSync(_path: string) {
         if (_path === '/') {
             return Object.keys(this.data).filter(Boolean)
         }
@@ -124,7 +124,7 @@ class MemoryFileSystem {
         return Object.keys(current[path[i]]).filter(Boolean)
     }
 
-    mkdirpSync(_path) {
+    mkdirpSync(_path: string) {
         const path = pathToArray(_path)
         if (path.length === 0) {
             return
@@ -142,7 +142,7 @@ class MemoryFileSystem {
         return
     }
 
-    mkdirSync(_path) {
+    mkdirSync(_path: string) {
         const path = pathToArray(_path)
         if (path.length === 0) {
             return
@@ -165,7 +165,7 @@ class MemoryFileSystem {
         return
     }
 
-    _remove(_path, name, testFn) {
+    _remove(_path: string, name: string, testFn: ((part: string) => boolean)) {
         const path = pathToArray(_path)
         if (path.length === 0) {
             throw new MemoryFileSystemError(errors.code.EPERM, _path)
@@ -185,19 +185,19 @@ class MemoryFileSystem {
         return
     }
 
-    rmdirSync(_path) {
+    rmdirSync(_path: string) {
         return this._remove(_path, 'Directory', isDir)
     }
 
-    unlinkSync(_path) {
+    unlinkSync(_path: string) {
         return this._remove(_path, 'File', isFile)
     }
 
-    readlinkSync(_path) {
+    readlinkSync(_path: string) {
         throw new MemoryFileSystemError(errors.code.ENOSYS, _path)
     }
 
-    writeFileSync(_path, content, encoding?) {
+    writeFileSync(_path: string, content: string | Buffer, encoding?: string) {
         if (!content && !encoding) {
             throw new Error('No content')
         }
@@ -216,13 +216,18 @@ class MemoryFileSystem {
         if (isDir(current[path[i]])) {
             throw new MemoryFileSystemError(errors.code.EISDIR, _path)
         }
-        current[path[i]] = encoding || typeof content === 'string' ? new Buffer(content, encoding) : content
+        current[path[i]] = encoding || typeof content === 'string' ? new Buffer(<string>content, encoding) : content
         return
     }
 
     // stream functions
 
-    createReadStream(path, options) {
+    createReadStream(
+        path: string, options: {
+            start: number
+            end: number
+        }
+    ) {
         const stream = new ReadableStream()
         let done = false
         let data
@@ -253,7 +258,7 @@ class MemoryFileSystem {
         return stream
     }
 
-    createWriteStream(path, options) {
+    createWriteStream(path: string, options) {
         const stream = new WritableStream()
         const self = this
         try {
@@ -276,11 +281,11 @@ class MemoryFileSystem {
         return stream
     }
 
-    exists(path, callback) {
+    exists(path: string, callback: (isExist: boolean) => any) {
         return callback(this.existsSync(path))
     }
 
-    writeFile(path, content, encoding, callback) {
+    writeFile(path: string, content: string, encoding: any, callback?: (err?: Error) => any) {
         if (!callback) {
             callback = encoding
             encoding = undefined
@@ -296,21 +301,22 @@ class MemoryFileSystem {
 
 export = MemoryFileSystem
 
-function isDir(item) {
+function isDir(item: {}) {
     if (typeof item !== 'object') {
         return false
     }
     return item[''] === true
 }
 
-function isFile(item) {
+function isFile(item: {}) {
     if (typeof item !== 'object') {
         return false
     }
     return !item['']
 }
 
-function pathToArray(path) {
+function pathToArray(path: string) {
+    let normalizedPath
     path = normalize(path)
     const nix = /^\//.test(path)
     if (!nix) {
@@ -318,17 +324,17 @@ function pathToArray(path) {
             throw new MemoryFileSystemError(errors.code.EINVAL, path)
         }
         path = path.replace(/[\\\/]+/g, '\\') // multi slashs
-        path = path.split(/[\\\/]/)
-        path[0] = path[0].toUpperCase()
+        normalizedPath = path.split(/[\\\/]/)
+        normalizedPath[0] = normalizedPath[0].toUpperCase()
     }
     else {
         path = path.replace(/\/+/g, '/') // multi slashs
-        path = path.substr(1).split('/')
+        normalizedPath = path.substr(1).split('/')
     }
-    if (!path[path.length - 1]) {
-        path.pop()
+    if (!normalizedPath[normalizedPath.length - 1]) {
+        normalizedPath.pop()
     }
-    return path
+    return normalizedPath
 }
 
 function trueFn() {
@@ -340,19 +346,19 @@ function falseFn() {
 }
 
 interface MemoryFileSystem {
-    writeFile(path, content, callback)
-    writeFile(path, content, encoding, callback)
-    join(path, request): string
-    pathToArray(path): string[]
-    normalize(path): string
-    stat(path, callback): void
-    readdir(path, callback): void
-    mkdirp(path, callback): void
-    rmdir(path, callback): void
-    unlink(path, callback): void
-    readlink(path, callback): void
-    mkdir(path, optArg, callback): void
-    readFile(path, optArg, callback): void
+    writeFile(path: string, content: string | Buffer, callback: (err?: Error) => any)
+    writeFile(path: string, content: string | Buffer, encoding: string, callback: (err?: Error) => any)
+    join(path: string, request: string): string
+    pathToArray(path: string): string[]
+    normalize(path: string): string
+    stat(path: string, callback: (err?: Error, result?: any) => any): void
+    readdir(path: string, callback: (err?: Error, result?: any) => any): void
+    mkdirp(path: string, callback: (err?: Error, result?: any) => any): void
+    rmdir(path: string, callback: (err?: Error, result?: any) => any): void
+    unlink(path: string, callback: (err?: Error, result?: any) => any): void
+    readlink(path: string, callback: (err?: Error, result?: any) => any): void
+    mkdir(path: string, optArg: {}, callback: (err?: Error, result?: any) => any): void
+    readFile(path: string, optArg: {}, callback: (err?: Error, result?: any) => any): void
 }
 
 MemoryFileSystem.prototype.join = require('./join')
@@ -362,7 +368,7 @@ MemoryFileSystem.prototype.normalize = normalize
 // async functions
 const async = ['stat', 'readdir', 'mkdirp', 'rmdir', 'unlink', 'readlink']
 async.forEach(fn => {
-    MemoryFileSystem.prototype[fn] = function (path, callback) {
+    MemoryFileSystem.prototype[fn] = function (path: string, callback) {
         let result
         try {
             result = this[`${fn}Sync`](path)
@@ -381,7 +387,7 @@ async.forEach(fn => {
 
 const async2 = ['mkdir', 'readFile']
 async2.forEach(fn => {
-    MemoryFileSystem.prototype[fn] = function (path, optArg, callback) {
+    MemoryFileSystem.prototype[fn] = function (path: string, optArg, callback) {
         if (!callback) {
             callback = optArg
             optArg = undefined
