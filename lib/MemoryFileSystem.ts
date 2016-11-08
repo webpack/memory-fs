@@ -271,9 +271,9 @@ class MemoryFileSystem {
             })
             return stream
         }
-        const bl = []
+        const bl: Buffer[] = []
         let len = 0
-        stream._write = (chunk, encoding, callback) => {
+        stream._write = function (chunk, encoding, callback) {
             bl.push(chunk)
             len += chunk.length
             self.writeFile(path, Buffer.concat(bl, len), callback)
@@ -290,12 +290,13 @@ class MemoryFileSystem {
             callback = encoding
             encoding = undefined
         }
+
         try {
             this.writeFileSync(path, content, encoding)
         } catch (e) {
-            return callback(e)
+            return (<Function>callback)(e as Error)
         }
-        return callback()
+        return (<Function>callback)()
     }
 }
 
