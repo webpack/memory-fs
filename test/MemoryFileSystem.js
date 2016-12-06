@@ -355,6 +355,8 @@ describe("normalize", function() {
 		fs.normalize("C:\\a\\b\\\c\\..\\..").should.be.eql("C:\\a");
 		fs.normalize("C:\\a\\b\\d\\..\\c\\..\\..").should.be.eql("C:\\a");
 		fs.normalize("C:\\a\\b\\d\\\\.\\\\.\\c\\.\\..").should.be.eql("C:\\a\\b\\d");
+		fs.normalize("\\\\a\\\\b").should.be.eql("\\\\a\\b");
+		fs.normalize("\\\\a\\\\b\\..\\c").should.be.eql("\\\\a\\c");
 	});
 });
 describe("pathToArray", function() {
@@ -363,6 +365,7 @@ describe("pathToArray", function() {
 		fs.pathToArray("/a/b/c").should.be.eql(["a", "b", "c"]);
 		fs.pathToArray("C:/a/b").should.be.eql(["C:", "a", "b"]);
 		fs.pathToArray("C:\\a\\b").should.be.eql(["C:", "a", "b"]);
+		fs.pathToArray("\\\\a\\b\\c").should.be.eql(["\\\\a", "b", "c"]);
 	});
 	it("should fail on invalid paths", function() {
 		(function() {
@@ -385,6 +388,7 @@ describe("join", function() {
 		fs.join("C:\\", "a\\b").should.be.eql("C:\\a\\b");
 		fs.join("C:/a/b", "./../c/d").should.be.eql("C:\\a\\c\\d");
 		fs.join("C:\\a\\b", "./../c/d").should.be.eql("C:\\a\\c\\d");
+		fs.join("\\\\a\\b\\..\\c\\d\\..").should.be.eql("\\\\a\\c");
 	});
 	it("should join paths (weird cases)", function() {
 		var fs = new MemoryFileSystem();
