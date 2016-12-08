@@ -6,8 +6,10 @@
     "lib": [
       "es2016"
     ],
+    "noEmit": true,
     "declaration": true,
-    "declarationDir": "typings"
+    "declarationDir": "typings",
+    "importHelpers": true
   },
   "exclude": [
     "node_modules",
