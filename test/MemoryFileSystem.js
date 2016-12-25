@@ -355,6 +355,11 @@ describe("normalize", function() {
 		fs.normalize("C:\\a\\b\\\c\\..\\..").should.be.eql("C:\\a");
 		fs.normalize("C:\\a\\b\\d\\..\\c\\..\\..").should.be.eql("C:\\a");
 		fs.normalize("C:\\a\\b\\d\\\\.\\\\.\\c\\.\\..").should.be.eql("C:\\a\\b\\d");
+		fs.normalize("./../a").should.be.eql("../a");
+		fs.normalize("/a/./../b").should.be.eql("/b");
+		fs.normalize("/./../b").should.be.eql("/b");
+		fs.normalize("C:\\.\\..\\a").should.be.eql("C:\\a");
+		fs.normalize("C:\\a\\.\\..\\b").should.be.eql("C:\\b");
 	});
 });
 describe("pathToArray", function() {
