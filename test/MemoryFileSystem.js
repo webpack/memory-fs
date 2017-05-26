@@ -81,6 +81,7 @@ describe("files", function() {
 		fs.writeFileSync("/test/hello-world.txt", buf);
 		fs.readFileSync("/test/hello-world.txt").should.be.eql(buf);
 		fs.readFileSync("/test/hello-world.txt", "utf-8").should.be.eql("Hello World");
+		fs.readFileSync("/test/hello-world.txt", {encoding: "utf-8"}).should.be.eql("Hello World");
 		(function() {
 			fs.readFileSync("/test/other-file");
 		}).should.throw();
@@ -92,6 +93,8 @@ describe("files", function() {
 		var stat = fs.statSync("/a");
 		stat.isFile().should.be.eql(true);
 		stat.isDirectory().should.be.eql(false);
+		fs.writeFileSync("/b", "Test", {encoding: "utf-8"});
+		fs.readFileSync("/b", "utf-8").should.be.eql("Test");
 	});
 });
 describe("errors", function() {
