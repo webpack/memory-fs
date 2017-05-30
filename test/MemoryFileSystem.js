@@ -95,14 +95,14 @@ describe("files", function() {
 	});
 });
 describe("errors", function() {
-	var catchError = function(fn) {
+	function catchError(fn) {
 		try {
 			fn();
 		} catch(e) {
 			return e;
 		}
 		return null;
-	};
+	}
 
 	it("should fail on invalid paths", function() {
 		var fs = new MemoryFileSystem();
