@@ -95,15 +95,6 @@ describe("files", function() {
 	});
 });
 describe("errors", function() {
-	function catchError(fn) {
-		try {
-			fn();
-		} catch(e) {
-			return e;
-		}
-		return null;
-	}
-
 	it("should fail on invalid paths", function() {
 		var fs = new MemoryFileSystem();
 		fs.mkdirpSync("/test/a/b/c");
@@ -150,30 +141,6 @@ describe("errors", function() {
 		}).should.throw();
 		fs.mkdir("/test/a/d/b/c", function(err) {
 			err.should.be.instanceof(Error);
-		});
-	});
-	it("should include the path in Error message", function(done) {
-		var fs = new MemoryFileSystem();
-		var invalidPath = "/nonexist/file";
-		var error = catchError(function() {
-			fs.statSync(invalidPath);
-		});
-		error.message.indexOf(invalidPath).should.be.above(-1);
-
-		fs.readFile(invalidPath, function(err) {
-			err.message.indexOf(invalidPath).should.be.above(-1);
-			done();
-		});
-	});
-	it("should use correct error name and message in the first line of Error stack", function(done) {
-		var fs = new MemoryFileSystem();
-		fs.unlink("/test/abcd", function(error) {
-			error.should.be.instanceof(Error);
-			var firstLine = error.stack.split(/\r\n|\n/)[0];
-			firstLine.should.startWith(error.name);
-			firstLine.indexOf(error.code).should.be.above(-1);
-			firstLine.indexOf(error.message).should.be.above(-1);
-			done();
 		});
 	});
 	it("should fail incorrect arguments", function() {
