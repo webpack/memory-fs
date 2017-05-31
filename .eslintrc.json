@@ -202,7 +202,6 @@
             "error",
             "always"
         ],
-        "strict": "error",
         "symbol-description": "error",
         "template-curly-spacing": "error",
         "unicode-bom": [

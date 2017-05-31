@@ -41,7 +41,7 @@ describe("error", function() {
 	it("should work fine without path and operation", function() {
 		var errorData = {
 			code:"ETEST",
-			description:"testerror",
+			description:"testerror"
 		};
 		var error = new MemoryFileSystemError(errorData);
 		error.message.should.startWith(error.code);
