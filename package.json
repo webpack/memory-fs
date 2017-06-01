@@ -14,6 +14,9 @@
     "cover": "istanbul cover node_modules/mocha/bin/_mocha",
     "travis": "npm run cover -- --report lcovonly"
   },
+  "engines": {
+    "node": ">=4.3.0 <5.0.0 || >=5.10"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/webpack/memory-fs.git"
@@ -32,8 +35,8 @@
     "bl": "^1.0.0",
     "codecov.io": "^0.1.4",
     "coveralls": "^2.11.2",
-    "istanbul": "^0.2.13",
-    "mocha": "^1.20.1",
+    "istanbul": "0.4.5",
+    "mocha": "3.2.0",
     "should": "^4.0.4"
   },
   "dependencies": {
