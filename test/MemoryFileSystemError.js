@@ -35,17 +35,20 @@ describe("error", function() {
 			var firstLine = error.stack.split(/\r\n|\n/)[0];
 			firstLine.should.containEql(error.code);
 			firstLine.should.containEql(error.message);
+			firstLine.should.containEql(error.operation);
 			done();
 		});
 	});
-	it("should work fine without path and operation", function() {
+	it("should work fine without operation name", function() {
 		var errorData = {
 			code:"ETEST",
 			description:"testerror"
 		};
-		var error = new MemoryFileSystemError(errorData);
+		var errorPath = "file";
+		var error = new MemoryFileSystemError(errorData, errorPath);
 		error.message.should.startWith(error.code);
 		error.stack.should.startWith(error.name);
 		error.stack.should.containEql(error.message);
+		error.stack.should.containEql(errorPath);
 	});
 });
