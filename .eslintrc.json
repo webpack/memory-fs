@@ -4,7 +4,7 @@
 		"es6": true
     },
     "parserOptions": {
-        "sourceType": "module"
+        "sourceType": "script"
     },
     "rules": {
         "accessor-pairs": "error",
@@ -74,10 +74,6 @@
         "id-blacklist": "error",
         "id-match": "error",
         "jsx-quotes": "error",
-        "linebreak-style": [
-            "error",
-            "unix"
-        ],
         "lines-around-comment": "error",
         "lines-around-directive": "error",
         "max-depth": "error",

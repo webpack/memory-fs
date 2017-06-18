@@ -11,8 +11,9 @@
   ],
   "scripts": {
     "test": "mocha",
+    "lint": "eslint lib/*",
     "cover": "istanbul cover node_modules/mocha/bin/_mocha",
-    "travis": "npm run cover -- --report lcovonly"
+    "travis": "npm run cover -- --report lcovonly && npm run lint"
   },
   "engines": {
     "node": ">=4.3.0 <5.0.0 || >=5.10"
@@ -35,6 +36,7 @@
     "bl": "^1.0.0",
     "codecov.io": "^0.1.4",
     "coveralls": "^2.11.2",
+    "eslint": "^4.0.0",
     "istanbul": "0.4.5",
     "mocha": "3.2.0",
     "should": "^4.0.4"
