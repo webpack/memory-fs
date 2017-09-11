@@ -142,6 +142,30 @@ describe("errors", function() {
 		(function() {
 			fs.statSync("/test/abcd");
 		}).should.throw();
+		(function() {
+			fs.existsSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.statSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.readFileSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.readdirSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.mkdirSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.mkdirpSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.rmdirSync("0:/");
+		}).should.throw();
+		(function() {
+			fs.writeFileSync("0:/", 'testing');
+		}).should.throw();
 		fs.mkdir("/test/a/d/b/c", function(err) {
 			err.should.be.instanceof(Error);
 		});
