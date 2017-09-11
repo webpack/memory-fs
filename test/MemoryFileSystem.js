@@ -205,6 +205,19 @@ describe("errors", function() {
 			fs.readlinkSync("/test/dir/link");
 		}).should.throw();
 	});
+	it("should throw on throwError", function () {
+		var fs = new MemoryFileSystem();
+		(function() {
+			fs.throwError("fn", [], [errors.code.ENOSYS, _path, "fn"]);
+		}).should.throw();
+	});
+	it("should allow overridable errors", function() {
+		var fs = new MemoryFileSystem();
+		fs.throwError = function(fn, args, error) {
+			return 'fallback file';
+		};
+		fs.readFileSync("/test/dir").should.be.eql("fallback file");
+	});
 });
 describe("async", function() {
 	["stat", "readdir", "mkdirp", "rmdir", "unlink", "readlink"].forEach(function(methodName) {
@@ -367,11 +380,15 @@ describe("pathToArray", function() {
 		fs.pathToArray("/a/b/c").should.be.eql(["a", "b", "c"]);
 		fs.pathToArray("C:/a/b").should.be.eql(["C:", "a", "b"]);
 		fs.pathToArray("C:\\a\\b").should.be.eql(["C:", "a", "b"]);
+		fs.pathToArray("/a").should.be.eql(["a"]);
+		fs.pathToArray("/").should.be.eql([]);
 	});
 	it("should fail on invalid paths", function() {
-		(function() {
-			fs.pathToArray("0:/");
-		}).should.throw();
+		var fs = new MemoryFileSystem();
+		// eslint-disable-next-line no-unused-expressions
+		should(fs.pathToArray("0:/")).not.be.ok;
+		// eslint-disable-next-line no-unused-expressions
+		should(fs.pathToArray("")).not.be.ok;
 	});
 });
 describe("join", function() {
