@@ -369,6 +369,7 @@ describe("pathToArray", function() {
 		fs.pathToArray("C:\\a\\b").should.be.eql(["C:", "a", "b"]);
 	});
 	it("should fail on invalid paths", function() {
+		var fs = new MemoryFileSystem();
 		(function() {
 			fs.pathToArray("0:/");
 		}).should.throw();
