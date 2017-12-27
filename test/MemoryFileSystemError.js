@@ -1,3 +1,5 @@
+"use strict";
+
 var bl = require("bl");
 var should = require("should");
 var MemoryFileSystem = require("../lib/MemoryFileSystem");
