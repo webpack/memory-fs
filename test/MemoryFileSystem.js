@@ -45,7 +45,7 @@ describe("directory", function() {
 		fs.mkdirSync("C:\\");
 		fs.mkdirSync("C:\\test");
 		fs.mkdirSync("C:\\test\\\\sub/");
-		fs.mkdirpSync("c:\\test/sub2");
+		fs.mkdirpSync("C:\\test/sub2");
 		fs.mkdirSync("C:\\root-dir");
 		fs.readdirSync("C:").should.be.eql(["test", "root-dir"]);
 		fs.readdirSync("C:/test/").should.be.eql(["sub", "sub2"]);
@@ -367,6 +367,7 @@ describe("pathToArray", function() {
 		fs.pathToArray("/a/b/c").should.be.eql(["a", "b", "c"]);
 		fs.pathToArray("C:/a/b").should.be.eql(["C:", "a", "b"]);
 		fs.pathToArray("C:\\a\\b").should.be.eql(["C:", "a", "b"]);
+		fs.pathToArray("c:\\a\\b").should.be.eql(["c:", "a", "b"]);
 	});
 	it("should fail on invalid paths", function() {
 		var fs = new MemoryFileSystem();

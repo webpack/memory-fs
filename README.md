@@ -24,6 +24,6 @@ fs.mkdirpSync("C:\\use\\windows\\style\\paths");
 
 ## License
 
-Copyright (c) 2012-2014 Tobias Koppers
+Copyright (c) 2012-2018 Tobias Koppers
 
 MIT (http://www.opensource.org/licenses/mit-license.php)
