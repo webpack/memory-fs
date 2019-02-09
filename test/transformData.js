@@ -32,6 +32,11 @@ describe("transformData", function() {
   })
 	it("should transform data", function() {
     const memfsData = transformData(data)
-    console.log(memfsData)
+    memfsData.should.be.eql({
+      '/a/dir/index': '2',
+      '/a/index': '1',
+      'C:\\a\\dir\\index': '4',
+      'C:\\a\\index': '3'
+    });
   })
 })
