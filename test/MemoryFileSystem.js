@@ -1,3 +1,5 @@
+"use strict"
+
 var bl = require("bl");
 var should = require("should");
 var MemoryFileSystem = require("../lib/MemoryFileSystem");
@@ -22,8 +24,8 @@ describe("directory", function() {
 		fs.mkdirpSync("/test/sub2");
 		fs.mkdirSync("/root\\dir");
 		fs.mkdirpSync("/");
-		fs.mkdirSync("/");
-		fs.readdirSync("/").should.be.eql(["test", "root\\dir"]);
+		// fs.mkdirSync("/"); // <-- should throw EEXIST: file already exists, mkdir '/'
+		fs.readdirSync("/").should.be.eql(["root\\dir", "test"]);
 		fs.readdirSync("/test/").should.be.eql(["sub", "sub2"]);
 		fs.rmdirSync("/test/sub//");
 		fs.readdirSync("//test").should.be.eql(["sub2"]);
@@ -427,10 +429,10 @@ describe("os", function() {
 				"": true,
 				a: {
 					"": true,
-					index: new Buffer("3"),  // C:\files\index
+					index: new Buffer("3"), // C:\files\index
 					dir: {
 						"": true,
-						index: new Buffer("4")  // C:\files\a\index
+						index: new Buffer("4") // C:\files\a\index
 					}
 				}
 			}
@@ -449,7 +451,7 @@ describe("os", function() {
 			fileSystem.statSync("/a/dir/index").isFile().should.be.eql(true);
 		});
 		it("should readdir directories", function() {
-			fileSystem.readdirSync("/a").should.be.eql(["index", "dir"]);
+			fileSystem.readdirSync("/a").should.be.eql(["dir", "index"]);
 			fileSystem.readdirSync("/a/dir").should.be.eql(["index"]);
 		});
 		it("should readdir directories", function() {
