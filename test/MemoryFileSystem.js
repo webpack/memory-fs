@@ -108,6 +108,7 @@ describe("errors", function() {
 		fs.mkdirpSync("/test/a/bc");
 		fs.mkdirpSync("/test/abc");
 		// TODO: memfs treats "relatvive" paths as being relative to process.cwd
+		// https://github.com/streamich/memfs/blob/master/docs/relative-paths.md
 		// (function() {
 		// 	fs.mkdirpSync("xyz");
 		// }).should.throw();
