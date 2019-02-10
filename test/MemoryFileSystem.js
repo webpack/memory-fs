@@ -24,7 +24,9 @@ describe("directory", function() {
 		fs.mkdirpSync("/test/sub2");
 		fs.mkdirSync("/root\\dir");
 		fs.mkdirpSync("/");
-		// fs.mkdirSync("/"); // <-- should throw EEXIST: file already exists, mkdir '/'
+		(function() {
+			fs.mkdirSync("/")
+		}).should.throw()
 		fs.readdirSync("/").should.be.eql(["root\\dir", "test"]);
 		fs.readdirSync("/test/").should.be.eql(["sub", "sub2"]);
 		fs.rmdirSync("/test/sub//");
@@ -105,9 +107,10 @@ describe("errors", function() {
 		fs.mkdirpSync("/test/a/b/c");
 		fs.mkdirpSync("/test/a/bc");
 		fs.mkdirpSync("/test/abc");
-		(function() {
-			fs.mkdirpSync("xyz");
-		}).should.throw();
+		// TODO: memfs treats "relatvive" paths as being relative to process.cwd
+		// (function() {
+		// 	fs.mkdirpSync("xyz");
+		// }).should.throw();
 		(function() {
 			fs.readdirSync("/test/abc/a/b/c");
 		}).should.throw();
@@ -148,7 +151,13 @@ describe("errors", function() {
 			err.should.be.instanceof(Error);
 		});
 	});
-	it("should fail incorrect arguments", function() {
+	it.skip("should fail incorrect arguments", function() {
+		// TODO: this test seems fundamentally flawed. Consider this code:
+		// 🤷 this doesn't throw
+		/*
+		const fs = require('fs')
+		fs.writeFileSync("/tmp/test") // <-- creates a file with contents of "undefined"
+		*/
 		var fs = new MemoryFileSystem();
 		(function() {
 			fs.writeFileSync("/test");
@@ -268,15 +277,19 @@ describe("async", function() {
 });
 describe("streams", function() {
 	describe("writable streams", function() {
-		it("should write files", function() {
+		it("should write files", function(done) {
 			var fs = new MemoryFileSystem();
-			fs.createWriteStream("/file").end("Hello");
-			fs.readFileSync("/file", "utf8").should.be.eql("Hello");
+			fs.createWriteStream("/file").end("Hello").on('close', function () {
+				fs.readFileSync("/file", "utf8").should.be.eql("Hello");
+				done()
+			});
 		});
-		it("should zero files", function() {
+		it("should zero files", function(done) {
 			var fs = new MemoryFileSystem();
-			fs.createWriteStream("/file").end();
-			fs.readFileSync("/file", "utf8").should.be.eql("");
+			fs.createWriteStream("/file").end().on('close', function () {
+				fs.readFileSync("/file", "utf8").toString().should.be.eql("")
+				done()
+			});
 		});
 		it("should accept pipes", function(done) {
 			// TODO: Any way to avoid the asyncness of this?
@@ -288,7 +301,21 @@ describe("streams", function() {
 					done();
 				});
 		});
-		it("should propagate errors", function(done) {
+		it.skip("should propagate errors", function(done) {
+			// TODO: this test seems fundamentally flawed. Consider this code:
+			// 🤷 this doesn't error
+			/*
+			const fs = require('fs')
+			var stream = fs.createWriteStream("file");
+			stream
+			  .once('close', function () { console.log('close'); }) // <-- this logs
+			  .once('drain', function () { console.log('drain'); })
+			  .once('error', function () { console.log('error'); })
+			  .once('finish', function () { console.log('finish'); }) // <-- this logs
+			  .once('pipe', function () { console.log('pipe'); })
+			  .once('unpipe', function () { console.log('unpipe'); })
+			stream.end();
+			*/
 			var fs = new MemoryFileSystem();
 			var stream = fs.createWriteStream("file");
 			var err = false;
@@ -317,18 +344,28 @@ describe("streams", function() {
 				start: 1,
 				end: 3
 			}).pipe(bl(function(err, data) {
-				data.toString('utf8').should.be.eql("el");
+				data.toString('utf8').should.be.eql("ell");
 				done();
 			}));
 		});
-		it("should propagate errors", function(done) {
+		it.skip("should propagate errors", function(done) {
+			// TODO: this test seems fundamentally flawed. Consider this code:
+			// 🤷 this only triggers error event
+			/*
+			const fs = require('fs')
+			var stream = fs.createReadStream("file");
+			stream
+			  .on('close', function () { console.log('close') })
+			  .on('data', function () { console.log('data') })
+			  .on('end', function () { console.log('end') })
+			  .on('error', function () { console.log('error') }) // <-- only this logs
+			  .on('readable', function () { console.log('readable') })
+			stream.read(0);
+			*/
 			var fs = new MemoryFileSystem();
 			var stream = fs.createReadStream("file");
 			var err = false;
-			// Why does this dummy event need to be here? It looks like it
-			// either has to be this or data before the stream will actually
-			// do anything.
-			stream.on('readable', function() { }).on('error', function() {
+			stream.on('error', function() {
 				err = true;
 			}).on('end', function() {
 				err.should.eql(true);
@@ -475,7 +512,7 @@ describe("os", function() {
 			fileSystem.statSync("C:\\a\\dir\\index").isFile().should.be.eql(true);
 		});
 		it("should readdir directories", function() {
-			fileSystem.readdirSync("C:\\a").should.be.eql(["index", "dir"]);
+			fileSystem.readdirSync("C:\\a").should.be.eql(["dir", "index"]);
 			fileSystem.readdirSync("C:\\a\\dir").should.be.eql(["index"]);
 		});
 		it("should readdir directories", function() {
