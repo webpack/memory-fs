@@ -33,7 +33,7 @@
   },
   "homepage": "https://github.com/webpack/memory-fs",
   "devDependencies": {
-    "bl": "^1.0.0",
+    "bl": "^2.2.1",
     "codecov.io": "^0.1.4",
     "coveralls": "^2.11.2",
     "eslint": "^4.0.0",
