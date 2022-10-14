@@ -1,5 +1,7 @@
 # memory-fs
 
+> DEPRECATED: use [memfs](https://github.com/streamich/memfs) instead.
+
 A simple in-memory filesystem. Holds data in a javascript object.
 
 ``` javascript
