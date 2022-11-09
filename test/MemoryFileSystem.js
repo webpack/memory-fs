@@ -77,7 +77,7 @@ describe("files", function() {
 	it("should make and remove files", function() {
 		var fs = new MemoryFileSystem();
 		fs.mkdirSync("/test");
-		var buf = new Buffer("Hello World", "utf-8");
+		var buf = Buffer.from("Hello World", "utf-8");
 		fs.writeFileSync("/test/hello-world.txt", buf);
 		fs.readFileSync("/test/hello-world.txt").should.be.eql(buf);
 		fs.readFileSync("/test/hello-world.txt", "utf-8").should.be.eql("Hello World");
@@ -242,7 +242,7 @@ describe("async", function() {
 						content.should.be.eql("Hello");
 						fs.readFile("/test/dir/b", function(err, content) {
 							if(err) throw err;
-							content.should.be.eql(new Buffer("World"));
+							content.should.be.eql(Buffer.from("World"));
 							fs.exists("/test/dir/b", function(exists) {
 								exists.should.be.eql(true);
 								done();
@@ -279,7 +279,7 @@ describe("streams", function() {
 		it("should accept pipes", function(done) {
 			// TODO: Any way to avoid the asyncness of this?
 			var fs = new MemoryFileSystem();
-			bl(new Buffer("Hello"))
+			bl(Buffer.from("Hello"))
 				.pipe(fs.createWriteStream("/file"))
 				.once('finish', function() {
 					fs.readFileSync("/file", "utf8").should.be.eql("Hello");
@@ -422,20 +422,20 @@ describe("os", function() {
 			"": true,
 			a: {
 				"": true,
-				index: new Buffer("1"), // /a/index
+				index: Buffer.from("1"), // /a/index
 				dir: {
 					"": true,
-					index: new Buffer("2") // /a/dir/index
+					index: Buffer.from("2") // /a/dir/index
 				}
 			},
 			"C:": {
 				"": true,
 				a: {
 					"": true,
-					index: new Buffer("3"),  // C:\files\index
+					index: Buffer.from("3"),  // C:\files\index
 					dir: {
 						"": true,
-						index: new Buffer("4")  // C:\files\a\index
+						index: Buffer.from("4")  // C:\files\a\index
 					}
 				}
 			}

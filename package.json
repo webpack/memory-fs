@@ -16,7 +16,7 @@
     "travis": "npm run cover -- --report lcovonly && npm run lint"
   },
   "engines": {
-    "node": ">=4.3.0 <5.0.0 || >=5.10"
+    "node": ">=4.5.0 <5.0.0 || >=5.10"
   },
   "repository": {
     "type": "git",
