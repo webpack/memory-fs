@@ -96,6 +96,15 @@ describe("files", function() {
 		fs.writeFileSync("/b", "Test", {encoding: "utf-8"});
 		fs.readFileSync("/b", "utf-8").should.be.eql("Test");
 	});
+	it("should allow creating empty files", function() {
+		var fs = new MemoryFileSystem();
+		fs.writeFileSync("/empty-buffer", new Buffer(""));
+		fs.readFileSync("/empty-buffer", "utf-8").should.be.eql("");
+		fs.writeFileSync("/empty-string", "");
+		fs.readFileSync("/empty-string", "utf-8").should.be.eql("");
+		fs.writeFileSync("/no-args");
+		fs.readFileSync("/no-args", "utf-8").should.be.eql("undefined");
+	});
 });
 describe("errors", function() {
 	it("should fail on invalid paths", function() {
@@ -145,12 +154,6 @@ describe("errors", function() {
 		fs.mkdir("/test/a/d/b/c", function(err) {
 			err.should.be.instanceof(Error);
 		});
-	});
-	it("should fail incorrect arguments", function() {
-		var fs = new MemoryFileSystem();
-		(function() {
-			fs.writeFileSync("/test");
-		}).should.throw();
 	});
 	it("should fail on wrong type", function() {
 		var fs = new MemoryFileSystem();
